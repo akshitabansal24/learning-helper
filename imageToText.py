@@ -3,26 +3,35 @@
 from google.cloud import vision
 
 
+def detect_text(path):
+    """Detects text in the file."""
+    from google.cloud import vision
 
-#def run_quickstart() -> vision.EntityAnnotation:
- #   """Provides a quick start example for Cloud Vision."""
+    client = vision.ImageAnnotatorClient()
 
-# Instantiates a client
-client = vision.ImageAnnotatorClient()
+    with open(path, "rb") as image_file:
+        content = image_file.read()
 
-# The URI of the image file to annotate
-file_uri = "gs://cloud-samples-data/vision/label/wakeupcat.jpg"
+    image = vision.Image(content=content)
 
-image = vision.Image()
-image.source.image_uri = file_uri
+    response = client.text_detection(image=image)
+    texts = response.text_annotations
+    str1=""
+    str2=""
+    for text in texts:
+            str1=str1+'#{}#'.format(text.description)
+    var=0;
+    for i in str1:
+        if (i=='#' and var==1):
+            break;
+        if i=='#':
+            var=1 
+        str2+=i     
+    print(str2)
+    if response.error.message:
+        raise Exception(
+            "{}\nFor more info on error messages, check: "
+            "https://cloud.google.com/apis/design/errors".format(response.error.message)
+        )
 
-# Performs label detection on the image file
-response = client.label_detection(image=image)
-labels = response.label_annotations
-
-print("Labels:")
-for label in labels:
-    print(label.description)
-
-#return labels
-
+detect_text("test.jpeg")
