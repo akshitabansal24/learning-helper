@@ -1,4 +1,4 @@
-def detect_document(path):
+def detectDocument(path):
     """Detects document features in an image."""
     from google.cloud import vision
 
@@ -41,4 +41,3 @@ def detect_document(path):
             "https://cloud.google.com/apis/design/errors".format(response.error.message)
         )
 
-detect_document('test.jpeg')

@@ -27,55 +27,56 @@ def transformFourPoints(image, pts):
 	warped = cv2.warpPerspective(image, M, (maxWidth, maxHeight))
 	return warped
 
-image=cv2.imread('handwriting.jpeg')
-#image = cv2.imread(args["image"])
-ratio = image.shape[0] / 500.0
-orig = image.copy()
-image = imutils.resize(image, height = 500)
+def cleanImage():
+    image=cv2.imread('handwriting.jpeg')
+    #image = cv2.imread(args["image"])
+    ratio = image.shape[0] / 500.0
+    orig = image.copy()
+    image = imutils.resize(image, height = 500)
 
-gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-gray = cv2.GaussianBlur(gray, (5, 5), 1)
-edged = cv2.Canny(gray, 75, 200)
+    gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
+    gray = cv2.GaussianBlur(gray, (5, 5), 1)
+    edged = cv2.Canny(gray, 75, 200)
 
-print("STEP 1: Edge Detection")
-edged = cv2.Canny(image, 75, 200)
-# cv2.imshow("Edged", edged)
-cv2.waitKey(0)
-cv2.destroyAllWindows()
-
-cnts = cv2.findContours(edged.copy(), cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
-cnts = imutils.grab_contours(cnts)
-cnts = sorted(cnts, key=cv2.contourArea, reverse=True)[:5]
-
-screenCnt = None
-for c in cnts:
-    peri = cv2.arcLength(c, True)
-    approx = cv2.approxPolyDP(c, 0.02 * peri, True)
-    if len(approx) == 4:  # Looks for quadrilateral (four points)
-        screenCnt = approx
-        break
-
-if screenCnt is None:
-    print("No contour with 4 points found")
-else:
-    print("STEP 2: Finding contours of paper")
-    cv2.drawContours(image, [screenCnt], -1, (0, 255, 0), 2)
-    # cv2.imshow("Outline", image)
+    print("STEP 1: Edge Detection")
+    edged = cv2.Canny(image, 75, 200)
+    # cv2.imshow("Edged", edged)
     cv2.waitKey(0)
     cv2.destroyAllWindows()
 
-    # Assuming 'orig' and 'ratio' are defined earlier in your code
-    warped = transformFourPoints(orig, screenCnt.reshape(4, 2) * ratio)
+    cnts = cv2.findContours(edged.copy(), cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
+    cnts = imutils.grab_contours(cnts)
+    cnts = sorted(cnts, key=cv2.contourArea, reverse=True)[:5]
 
-    # Convert to grayscale and apply adaptive thresholding
-    warped = cv2.cvtColor(warped, cv2.COLOR_BGR2GRAY)
-    T = threshold_local(warped, 11, offset=10, method="gaussian")
-    warped = (warped > T).astype("uint8") * 255
+    screenCnt = None
+    for c in cnts:
+        peri = cv2.arcLength(c, True)
+        approx = cv2.approxPolyDP(c, 0.02 * peri, True)
+        if len(approx) == 4:  # Looks for quadrilateral (four points)
+            screenCnt = approx
+            break
 
-    print("STEP 3: Applying perspective transform")
-    # cv2.imshow("Original", imutils.resize(orig, height=650))
-    # cv2.imshow("Scanned", imutils.resize(warped, height=650))
-    cv2.imwrite("scan.png", imutils.resize(warped, height=650))
-    variable = imutils.resize(warped, height=650)
-    cv2.waitKey(0)
-    cv2.destroyAllWindows()
+    if screenCnt is None:
+        print("No contour with 4 points found")
+    else:
+        print("STEP 2: Finding contours of paper")
+        cv2.drawContours(image, [screenCnt], -1, (0, 255, 0), 2)
+        # cv2.imshow("Outline", image)
+        cv2.waitKey(0)
+        cv2.destroyAllWindows()
+
+        # Assuming 'orig' and 'ratio' are defined earlier in your code
+        warped = transformFourPoints(orig, screenCnt.reshape(4, 2) * ratio)
+
+        # Convert to grayscale and apply adaptive thresholding
+        warped = cv2.cvtColor(warped, cv2.COLOR_BGR2GRAY)
+        T = threshold_local(warped, 11, offset=10, method="gaussian")
+        warped = (warped > T).astype("uint8") * 255
+
+        print("STEP 3: Applying perspective transform")
+        # cv2.imshow("Original", imutils.resize(orig, height=650))
+        # cv2.imshow("Scanned", imutils.resize(warped, height=650))
+        cv2.imwrite("scan.png", imutils.resize(warped, height=650))
+        variable = imutils.resize(warped, height=650)
+        cv2.waitKey(0)
+        cv2.destroyAllWindows()

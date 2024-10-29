@@ -1,6 +1,6 @@
 from google.cloud import speech
 
-def run_quickstart() -> speech.RecognizeResponse:
+def listenAudio() -> speech.RecognizeResponse:
     # Instantiates a client
     client = speech.SpeechClient()
 
@@ -26,4 +26,3 @@ def run_quickstart() -> speech.RecognizeResponse:
 
     print(str)
 
-run_quickstart()
