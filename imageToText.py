@@ -27,11 +27,12 @@ def detect_text(path):
         if i=='#':
             var=1 
         str2+=i     
-    print(str2)
+    # print(str2)
+    return str2
     if response.error.message:
         raise Exception(
             "{}\nFor more info on error messages, check: "
             "https://cloud.google.com/apis/design/errors".format(response.error.message)
         )
 
-detect_text("test.jpeg")
+# detect_text("test.jpeg")

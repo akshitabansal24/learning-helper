@@ -34,7 +34,8 @@ def detectDocument(path):
                     #             symbol.text, symbol.confidence
                     #         )
                     #     )
-    print(str)
+    # print(str)
+    return str
     if response.error.message:
         raise Exception(
             "{}\nFor more info on error messages, check: "

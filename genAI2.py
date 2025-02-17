@@ -1,7 +1,7 @@
 import vertexai
 from vertexai.generative_models import GenerativeModel
 
-PROJECT_ID = "ambient-union-440009-q4"
+PROJECT_ID = "learning-helper-2025-451212"
 vertexai.init(project=PROJECT_ID, location="us-central1")
 
 model = GenerativeModel("gemini-1.5-flash-002")

@@ -27,8 +27,8 @@ def transformFourPoints(image, pts):
 	warped = cv2.warpPerspective(image, M, (maxWidth, maxHeight))
 	return warped
 
-def cleanImage():
-    image=cv2.imread('handwriting.jpeg')
+def cleanImage(path):
+    image=cv2.imread(path)
     #image = cv2.imread(args["image"])
     ratio = image.shape[0] / 500.0
     orig = image.copy()
@@ -76,7 +76,10 @@ def cleanImage():
         print("STEP 3: Applying perspective transform")
         # cv2.imshow("Original", imutils.resize(orig, height=650))
         # cv2.imshow("Scanned", imutils.resize(warped, height=650))
-        cv2.imwrite("scan.png", imutils.resize(warped, height=650))
+        cleanedImage = 'scan.png'
+        cv2.imwrite(cleanedImage, imutils.resize(warped, height=650))
         variable = imutils.resize(warped, height=650)
         cv2.waitKey(0)
         cv2.destroyAllWindows()
+
+    return cleanedImage

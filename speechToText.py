@@ -6,7 +6,7 @@ def listenAudio() -> speech.RecognizeResponse:
 
     # The name of the audio file to transcribe
     # gcs_uri = "gs://cloud-samples-data/speech/brooklyn_bridge.raw"
-    file_path = "/home/learninghelper2/learning-helper/output.mp3"
+    file_path = "/home/learninghelper3/learning-helper/output.mp3"
     with open(file_path, "rb") as audio_file:
         content = audio_file.read()
     

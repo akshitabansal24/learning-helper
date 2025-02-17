@@ -6,6 +6,6 @@ pw: same gmail pw
 5. git checkout feature/
 6. change projectId in genAI file
 7. update output.mp3 file path in speechToText.py
-8. enable apis as per code error flow
+8. enable apis as per code error flow (Cloud Vision API,Vertex AI API,Cloud Text-to-Speech API,Cloud Speech-to-Text API)
 9. import python libraries as per error
 10. run learningHelper.py
