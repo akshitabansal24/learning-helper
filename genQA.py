@@ -8,6 +8,7 @@ vertexai.init(project=PROJECT_ID, location="us-central1")
 model = GenerativeModel("gemini-1.5-flash-002")
 
 def genQA(text):
+    print("Received text:",text)
     AItext = text
     prompt1 = ( "Hello, you are a learning helper tutor. Your job is to help students in learning their study material."
                 "You will be provided with some study material notes, in either question answer format"
@@ -29,15 +30,9 @@ def genQA(text):
 
     try:
         json_data = json.loads(raw_text)
-        with open("generated_QA.json", "w", encoding="utf-8") as file:
-            json.dump(json_data, file, indent=4, ensure_ascii=False)
-        print("QA pairs successfully saved to 'generated_QA.json'.")
+    #     with open("generated_QA.json", "w", encoding="utf-8") as file:
+    #         json.dump(json_data, file, indent=4, ensure_ascii=False)
+        print("QA pairs success")
+        return json_data
     except json.JSONDecodeError:
         print("Error: Generated response is not a valid JSON format.")
-
-    # print(response1.text)
-
-    # with open("generated_QA.json", "w", encoding="utf-8") as file:
-    #     file.write(response1.text)
-
-    # print("QA pairs successfully saved to 'generated_QA.json'.")

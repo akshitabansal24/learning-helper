@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Intellitutor Learning Helper</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+            background-color: #f4f4f4;
+        }
+        .header {
+            background: #007bff;
+            color: white;
+            padding: 15px;
+            text-align: center;
+            font-size: 24px;
+            font-weight: bold;
+        }
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+            width: 90%;
+            max-width: 400px;
+            text-align: center;
+            margin: 20px auto;
+        }
+        input[type="file"], input[type="text"] {
+            width: 100%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+        }
+        button {
+            background: #28a745;
+            color: white;
+            padding: 10px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            width: 100%;
+        }
+        button:hover {
+            background: #218838;
+        }
+        .output {
+            margin-top: 20px;
+            padding: 10px;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            background: #fff;
+            min-height: 50px;
+            text-align: left;
+        }
+        .footer {
+            background: #333;
+            color: white;
+            text-align: center;
+            padding: 10px;
+            position: fixed;
+            bottom: 0;
+            width: 100%;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">Intellitutor Learning Helper</div>
+    <div class="container">
+        <h2>Upload Image & Enter Text</h2>
+        <input type="file" id="imageInput" accept="image/*">
+        <input type="text" id="textInput" placeholder="Enter text here...">
+        <button onclick="handleSubmit()">Submit</button>
+        <div class="output" id="outputBox">Output will appear here...</div>
+    </div>
+    <div class="footer">&copy; 2025 Intellitutor. All rights reserved.</div>
+
+    <script>
+        function handleSubmit() {
+            let text = document.getElementById("textInput").value;
+            let imageInput = document.getElementById("imageInput");
+            let outputBox = document.getElementById("outputBox");
+            
+            if (imageInput.files.length > 0 && text) {
+                outputBox.innerHTML = `<strong>Text:</strong> ${text} <br><strong>Image:</strong> ${imageInput.files[0].name}`;
+            } else {
+                outputBox.innerHTML = "Please upload an image and enter text.";
+            }
+        }
+    </script>
+</body>
+</html>
