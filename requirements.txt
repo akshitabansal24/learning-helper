@@ -1,8 +1,10 @@
 flask
+flask_cors
 flask-restful
 opencv-python
 imutils
 scikit-image
+werkzeug
 google-cloud-vision
 google-cloud-aiplatform
 gunicorn
