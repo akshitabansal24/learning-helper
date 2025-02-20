@@ -2,6 +2,9 @@ import cv2
 import imutils
 import numpy as np
 from skimage.filters import threshold_local
+from google.cloud import storage
+import bucket
+import time
 
 def order_points(pts):
 	rect = np.zeros((4, 2), dtype="float32")
@@ -76,10 +79,17 @@ def cleanImage(path):
         print("STEP 3: Applying perspective transform")
         # cv2.imshow("Original", imutils.resize(orig, height=650))
         # cv2.imshow("Scanned", imutils.resize(warped, height=650))
-        cleanedImage = 'scan.png'
-        cv2.imwrite(cleanedImage, imutils.resize(warped, height=650))
-        variable = imutils.resize(warped, height=650)
+        # cleanedImage = 'scan.png'
+
+        cleanedFile = imutils.resize(warped, height=650)
+        timestamp = int(time.time())
+        tmp_cleanedFile = f"/tmp/cleanedFile_{timestamp}.png"
+        cv2.imwrite(tmp_cleanedFile, cleanedFile)
+        bucket.gcs_upload_image(tmp_cleanedFile)
         cv2.waitKey(0)
         cv2.destroyAllWindows()
 
-    return cleanedImage
+        return tmp_cleanedFile
+
+
+

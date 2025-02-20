@@ -3,94 +3,193 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Intellitutor Learning Helper</title>
+    <title>IntelliTutor Learning Helper</title>
     <style>
+        /* General Styling */
         body {
-            font-family: Arial, sans-serif;
+            font-family: 'Arial', sans-serif;
             margin: 0;
             padding: 0;
-            background-color: #f4f4f4;
+            background-color: #f0f4f8;
         }
-        .header {
-            background: #007bff;
+        
+        /* Header */
+        header {
+            background-color: #007bff;
             color: white;
-            padding: 15px;
             text-align: center;
+            padding: 15px;
             font-size: 24px;
             font-weight: bold;
+            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
         }
+
+        /* Container */
         .container {
+            max-width: 800px;
+            margin: 50px auto;
             background: white;
             padding: 20px;
             border-radius: 10px;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-            width: 90%;
-            max-width: 400px;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
             text-align: center;
-            margin: 20px auto;
         }
-        input[type="file"], input[type="text"] {
+
+        /* File Input & Button */
+        input[type="file"] {
             width: 100%;
+            margin: 15px 0;
             padding: 10px;
-            margin: 10px 0;
             border: 1px solid #ccc;
             border-radius: 5px;
         }
+
         button {
-            background: #28a745;
-            color: white;
-            padding: 10px;
+            padding: 12px;
             border: none;
             border-radius: 5px;
+            background: #007bff;
+            color: white;
+            font-size: 16px;
             cursor: pointer;
-            width: 100%;
+            transition: 0.3s;
         }
+
         button:hover {
-            background: #218838;
+            background: #0056b3;
         }
-        .output {
+
+        /* Output Section */
+        .output-container {
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
             margin-top: 20px;
-            padding: 10px;
-            border: 1px solid #ccc;
-            border-radius: 5px;
-            background: #fff;
-            min-height: 50px;
+            gap: 20px;
+        }
+
+        /* Image Box */
+        .image-box {
+            flex: 1;
+            min-width: 300px;
+            background: #ffffff;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
+            text-align: center;
+        }
+
+        .image-box img {
+            max-width: 100%;
+            border-radius: 8px;
+            margin-top: 10px;
+            box-shadow: 0 3px 6px rgba(0, 0, 0, 0.2);
+        }
+
+        /* QA Section */
+        .qa-box {
+            flex: 1;
+            min-width: 300px;
+            background: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 3px 6px rgba(0, 0, 0, 0.1);
             text-align: left;
         }
-        .footer {
-            background: #333;
+
+        .qa-box h3 {
+            margin-bottom: 10px;
+            color: #007bff;
+        }
+
+        .qa-box p {
+            background: white;
+            padding: 10px;
+            border-radius: 5px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            margin-bottom: 10px;
+        }
+
+        /* Footer */
+        footer {
+            margin-top: 30px;
+            background-color: #007bff;
             color: white;
             text-align: center;
             padding: 10px;
-            position: fixed;
-            bottom: 0;
-            width: 100%;
+            font-size: 14px;
+            box-shadow: 0 -4px 6px rgba(0, 0, 0, 0.1);
         }
     </style>
 </head>
 <body>
-    <div class="header">Intellitutor Learning Helper</div>
+
+    <header>IntelliTutor Learning Helper</header>
+
     <div class="container">
-        <h2>Upload Image & Enter Text</h2>
-        <input type="file" id="imageInput" accept="image/*">
-        <input type="text" id="textInput" placeholder="Enter text here...">
-        <button onclick="handleSubmit()">Submit</button>
-        <div class="output" id="outputBox">Output will appear here...</div>
+        <h2>Upload an Image</h2>
+        <input type="file" id="fileInput" accept="image/*">
+        <button onclick="uploadImage()">Submit</button>
+
+        <div class="output-container">
+            <div class="image-box" id="cleanedImageBox"></div>
+            <div class="qa-box" id="qaBox">
+                <h3>Generated Q&A:</h3>
+                <p>Upload an image to see the results.</p>
+            </div>
+        </div>
     </div>
-    <div class="footer">&copy; 2025 Intellitutor. All rights reserved.</div>
+
+    <footer>&copy; 2025 IntelliTutor. All Rights Reserved.</footer>
 
     <script>
-        function handleSubmit() {
-            let text = document.getElementById("textInput").value;
-            let imageInput = document.getElementById("imageInput");
-            let outputBox = document.getElementById("outputBox");
-            
-            if (imageInput.files.length > 0 && text) {
-                outputBox.innerHTML = `<strong>Text:</strong> ${text} <br><strong>Image:</strong> ${imageInput.files[0].name}`;
-            } else {
-                outputBox.innerHTML = "Please upload an image and enter text.";
+        async function uploadImage() {
+            const fileInput = document.getElementById('fileInput');
+            const cleanedImageBox = document.getElementById('cleanedImageBox');
+            const qaBox = document.getElementById('qaBox');
+
+            if (!fileInput.files.length) {
+                alert("Please select an image first.");
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('img', fileInput.files[0]);
+
+            try {
+                const response = await fetch('https://learning-helper-2025-451212.uc.r.appspot.com/processImage', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (!response.ok) {
+                    throw new Error("Failed to fetch response");
+                }
+
+                const result = await response.json();
+
+                // Display the cleaned image
+                if (result.cleaned_image_url) {
+                    cleanedImageBox.innerHTML = `<h3>Cleaned Image:</h3><img src="${result.cleaned_image_url}" alt="Cleaned Image">`;
+                } else {
+                    cleanedImageBox.innerHTML = `<p>No cleaned image received.</p>`;
+                }
+
+                // Display the QA response
+                if (result.qa_response && result.qa_response.QA && Array.isArray(result.qa_response.QA)) {
+                    qaBox.innerHTML = "<h3>Generated Q&A:</h3>" + result.qa_response.QA.map(
+                        qa => `<p><strong>Q:</strong> ${qa.Ques}<br><strong>A:</strong> ${qa.Ans}</p>`
+                    ).join('');
+                } else {
+                    qaBox.innerHTML = "<p>No QA data found in response</p>";
+                }
+
+            } catch (error) {
+                console.error("Error:", error);
+                qaBox.innerText = "Error processing the response";
             }
         }
     </script>
+
 </body>
 </html>

@@ -14,25 +14,21 @@ def detect_text(path):
 
     image = vision.Image(content=content)
 
-    response = client.text_detection(image=image)
+    image_context = vision.ImageContext(language_hints=["en", "hi", "fr", "es", "zh"]) 
+
+    response = client.text_detection(image=image, image_context=image_context)
     texts = response.text_annotations
-    str1=""
-    str2=""
-    for text in texts:
-            str1=str1+'#{}#'.format(text.description)
-    var=0;
-    for i in str1:
-        if (i=='#' and var==1):
-            break;
-        if i=='#':
-            var=1 
-        str2+=i     
-    # print(str2)
-    return str2
     if response.error.message:
         raise Exception(
             "{}\nFor more info on error messages, check: "
             "https://cloud.google.com/apis/design/errors".format(response.error.message)
         )
 
-# detect_text("test.jpeg")
+    extracted_text = ""
+    if texts:
+        extracted_text = texts[0].description  # Extract full text
+
+    return extracted_text
+    # print(extracted_text)
+
+# detect_text("hindi.png")
