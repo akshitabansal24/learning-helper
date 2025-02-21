@@ -7,89 +7,91 @@ import bucket
 import time
 
 def order_points(pts):
-	rect = np.zeros((4, 2), dtype="float32")
-	s = pts.sum(axis=1)
-	rect[0] = pts[np.argmin(s)]
-	rect[2] = pts[np.argmax(s)]
-	diff = np.diff(pts, axis=1)
-	rect[1] = pts[np.argmin(diff)]
-	rect[3] = pts[np.argmax(diff)]
-	return rect
+    rect = np.zeros((4, 2), dtype="float32")
+    s = pts.sum(axis=1)
+    rect[0] = pts[np.argmin(s)]
+    rect[2] = pts[np.argmax(s)]
+    diff = np.diff(pts, axis=1)
+    rect[1] = pts[np.argmin(diff)]
+    rect[3] = pts[np.argmax(diff)]
+    return rect
 
 def transformFourPoints(image, pts):
-	rect = order_points(pts)
-	(tl, tr, br, bl) = rect
-	widthA = np.sqrt(((br[0] - bl[0]) ** 2) + ((br[1] - bl[1]) ** 2))
-	widthB = np.sqrt(((tr[0] - tl[0]) ** 2) + ((tr[1] - tl[1]) ** 2))
-	maxWidth = max(int(widthA), int(widthB))
-	heightA = np.sqrt(((tr[0] - br[0]) ** 2) + ((tr[1] - br[1]) ** 2))
-	heightB = np.sqrt(((tl[0] - bl[0]) ** 2) + ((tl[1] - bl[1]) ** 2))
-	maxHeight = max(int(heightA), int(heightB))
-	dst = np.array([[0, 0],	[maxWidth - 1, 0],	[maxWidth - 1, maxHeight - 1],	[0, maxHeight - 1]], dtype="float32")
-	M = cv2.getPerspectiveTransform(rect, dst)
-	warped = cv2.warpPerspective(image, M, (maxWidth, maxHeight))
-	return warped
+    rect = order_points(pts)
+    (tl, tr, br, bl) = rect
+    widthA = np.linalg.norm(br - bl)
+    widthB = np.linalg.norm(tr - tl)
+    maxWidth = int(max(widthA, widthB))
+
+    heightA = np.linalg.norm(tr - br)
+    heightB = np.linalg.norm(tl - bl)
+    maxHeight = int(max(heightA, heightB))
+
+    dst = np.array([
+        [0, 0], [maxWidth - 1, 0], 
+        [maxWidth - 1, maxHeight - 1], [0, maxHeight - 1]
+    ], dtype="float32")
+
+    M = cv2.getPerspectiveTransform(rect, dst)
+    warped = cv2.warpPerspective(image, M, (maxWidth, maxHeight))
+    return warped
 
 def cleanImage(path):
-    image=cv2.imread(path)
-    #image = cv2.imread(args["image"])
+    image = cv2.imread(path)
+    if image is None:
+        print("Error: Unable to load image.")
+        return None
+
     ratio = image.shape[0] / 500.0
     orig = image.copy()
-    image = imutils.resize(image, height = 500)
+    image = imutils.resize(image, height=500)
 
     gray = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-    gray = cv2.GaussianBlur(gray, (5, 5), 1)
-    edged = cv2.Canny(gray, 75, 200)
+    blurred = cv2.GaussianBlur(gray, (5, 5), 1)
+    edged = cv2.Canny(blurred, 75, 200)
 
-    print("STEP 1: Edge Detection")
-    edged = cv2.Canny(image, 75, 200)
-    # cv2.imshow("Edged", edged)
-    cv2.waitKey(0)
-    cv2.destroyAllWindows()
+    print("STEP 1: Edge Detection Completed")
 
-    cnts = cv2.findContours(edged.copy(), cv2.RETR_LIST, cv2.CHAIN_APPROX_SIMPLE)
+    cnts = cv2.findContours(edged.copy(), cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
     cnts = imutils.grab_contours(cnts)
-    cnts = sorted(cnts, key=cv2.contourArea, reverse=True)[:5]
+
+    # Sort by area and filter out too small contours
+    valid_contours = [c for c in cnts if cv2.contourArea(c) > 1000]
+    valid_contours = sorted(valid_contours, key=cv2.contourArea, reverse=True)
 
     screenCnt = None
-    for c in cnts:
+    for c in valid_contours:
         peri = cv2.arcLength(c, True)
         approx = cv2.approxPolyDP(c, 0.02 * peri, True)
-        if len(approx) == 4:  # Looks for quadrilateral (four points)
-            screenCnt = approx
-            break
+
+        # Ensure it's a 4-sided shape with realistic dimensions
+        if len(approx) == 4:
+            (x, y, w, h) = cv2.boundingRect(approx)
+            aspect_ratio = w / float(h)
+            if 0.5 < aspect_ratio < 2:  # Accept reasonable document-like aspect ratios
+                screenCnt = approx
+                break
 
     if screenCnt is None:
-        print("No contour with 4 points found")
+        print("Warning: No valid document contour detected. Using full image.")
+
+        # Step 2: Adaptive Thresholding on the original image
+        gray = cv2.cvtColor(orig, cv2.COLOR_BGR2GRAY)
+        T = threshold_local(gray, 11, offset=10, method="gaussian")
+        cleaned = (gray > T).astype("uint8") * 255
     else:
-        print("STEP 2: Finding contours of paper")
-        cv2.drawContours(image, [screenCnt], -1, (0, 255, 0), 2)
-        # cv2.imshow("Outline", image)
-        cv2.waitKey(0)
-        cv2.destroyAllWindows()
+        print("STEP 2: Found valid document contours")
+        cleaned = transformFourPoints(orig, screenCnt.reshape(4, 2) * ratio)
+        cleaned = cv2.cvtColor(cleaned, cv2.COLOR_BGR2GRAY)
+        T = threshold_local(cleaned, 11, offset=10, method="gaussian")
+        cleaned = (cleaned > T).astype("uint8") * 255
 
-        # Assuming 'orig' and 'ratio' are defined earlier in your code
-        warped = transformFourPoints(orig, screenCnt.reshape(4, 2) * ratio)
+    print("STEP 3: Image Cleaning Completed")
 
-        # Convert to grayscale and apply adaptive thresholding
-        warped = cv2.cvtColor(warped, cv2.COLOR_BGR2GRAY)
-        T = threshold_local(warped, 11, offset=10, method="gaussian")
-        warped = (warped > T).astype("uint8") * 255
+    cleanedFile = imutils.resize(cleaned, height=650)
+    timestamp = int(time.time())
+    tmp_cleanedFile = f"/tmp/cleanedFile_{timestamp}.png"
+    cv2.imwrite(tmp_cleanedFile, cleanedFile)
+    bucket.gcs_upload_image(tmp_cleanedFile)
 
-        print("STEP 3: Applying perspective transform")
-        # cv2.imshow("Original", imutils.resize(orig, height=650))
-        # cv2.imshow("Scanned", imutils.resize(warped, height=650))
-        # cleanedImage = 'scan.png'
-
-        cleanedFile = imutils.resize(warped, height=650)
-        timestamp = int(time.time())
-        tmp_cleanedFile = f"/tmp/cleanedFile_{timestamp}.png"
-        cv2.imwrite(tmp_cleanedFile, cleanedFile)
-        bucket.gcs_upload_image(tmp_cleanedFile)
-        cv2.waitKey(0)
-        cv2.destroyAllWindows()
-
-        return tmp_cleanedFile
-
-
-
+    return tmp_cleanedFile
