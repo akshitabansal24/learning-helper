@@ -86,7 +86,11 @@
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     
     <script>
-        async function uploadImage() {
+        let recognition;
+        let isListening = false;
+        let currentAnswer = ""; // Stores the correct answer when listening starts
+    
+        function uploadImage() {
             const fileInput = document.getElementById('fileInput');
             const cleanedImageBox = document.getElementById('cleanedImageBox');
             const qaBox = document.getElementById('qaBox');
@@ -104,18 +108,12 @@
             const formData = new FormData();
             formData.append('img', fileInput.files[0]);
     
-            try {
-                const response = await fetch('https://learning-helper-2025-451212.uc.r.appspot.com/processImage', {
-                    method: 'POST',
-                    body: formData
-                });
-    
-                if (!response.ok) {
-                    throw new Error("Failed to fetch response");
-                }
-    
-                const result = await response.json();
-    
+            fetch('https://learning-helper-2025-451212.uc.r.appspot.com/processImage', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(result => {
                 if (result.cleaned_image_url) {
                     cleanedImageBox.innerHTML = `<img src="${result.cleaned_image_url}" class="img-fluid rounded shadow" alt="Cleaned Image">`;
                 } else {
@@ -123,20 +121,102 @@
                 }
     
                 if (result.qa_response && result.qa_response.QA && Array.isArray(result.qa_response.QA)) {
-                    qaBox.innerHTML = result.qa_response.QA.map(
-                        qa => `<div class="alert alert-light border"><strong>Q:</strong> ${qa.Ques}<br><strong>A:</strong> ${qa.Ans}</div>`
-                    ).join('');
+                    qaBox.innerHTML = result.qa_response.QA.map((qa, index) => `
+                        <div class="alert alert-light border qa-card">
+                            <strong>Q:</strong> ${qa.Ques}<br>
+                            <strong>A:</strong> ${qa.Ans}
+                            <div class="mt-2">
+                                <button class="btn btn-sm btn-primary me-2" onclick="speakQues('${qa.Ques}')">
+                                    🔊 Play Question
+                                </button>
+                                <button id="listenBtn${index}" class="btn btn-sm btn-success" onclick="toggleSpeechRecognition(this, '${qa.Ans}', ${index})">
+                                    🎤 Start Listening
+                                </button>
+                            </div>
+                        </div>
+                    `).join('');
                 } else {
                     qaBox.innerHTML = "<p>No QA data found in response</p>";
                 }
-    
-            } catch (error) {
+            })
+            .catch(error => {
                 console.error("Error:", error);
                 qaBox.innerText = "Error processing the response";
-            } finally {
+            })
+            .finally(() => {
                 uploadBtn.disabled = false;
                 loadingSpinner.classList.add("d-none");
+            });
+        }
+    
+        function speakQues(questionText) {
+            const speechSynth = window.speechSynthesis;
+            if (!speechSynth.speaking && questionText.trim().length) {
+                const newUtter = new SpeechSynthesisUtterance(questionText);
+                speechSynth.speak(newUtter);
             }
+        }
+    
+        function toggleSpeechRecognition(button, correctAnswer, index) {
+            if (!('webkitSpeechRecognition' in window)) {
+                alert('Speech recognition not supported in this browser.');
+                return;
+            }
+    
+            if (!recognition) {
+                recognition = new webkitSpeechRecognition();
+                recognition.continuous = false;
+                recognition.interimResults = false;
+                recognition.lang = 'en-US';
+    
+                recognition.onresult = function(event) {
+                    if (isListening) {
+                        const transcript = event.results[0][0].transcript;
+                        console.log("User response:", transcript);
+                        currentAnswer = transcript; // Store user's response
+                    }
+                };
+    
+                recognition.onend = function() {
+                    isListening = false;
+                    button.innerHTML = "🎤 Start Listening";
+                    button.classList.remove("btn-danger");
+                    button.classList.add("btn-success");
+    
+                    // Compare only after stopping
+                    if (currentAnswer && correctAnswer) {
+                        checkAnswer(currentAnswer, correctAnswer);
+                    }
+                };
+            }
+    
+            if (isListening) {
+                recognition.stop(); // Stop recognition and trigger `onend`
+            } else {
+                currentAnswer = ""; // Reset user response before starting
+                recognition.start();
+                isListening = true;
+                button.innerHTML = "🛑 Stop Listening";
+                button.classList.remove("btn-success");
+                button.classList.add("btn-danger");
+            }
+        }
+    
+        function checkAnswer(userAnswer, correctAnswer) {
+            const similarity = compareText(userAnswer.toLowerCase(), correctAnswer.toLowerCase());
+            console.log('Your answer similarity: ',similarity);
+        }
+    
+        function compareText(str1, str2) {
+            let matches = 0;
+            const words1 = str1.split(" ");
+            const words2 = str2.split(" ");
+    
+            words1.forEach(word => {
+                if (words2.includes(word)) matches++;
+            });
+    
+            return ((matches / Math.max(words1.length, words2.length)) * 100).toFixed(2);
         }
     </script>
 </body>
