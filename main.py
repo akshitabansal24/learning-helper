@@ -57,6 +57,16 @@ def processImage():
         "cleaned_image_url": cleaned_image_url,
         "qa_response": response
     })
+
+@app.route('/checkAnswer', methods = ['POST']) 
+@cross_origin(supports_credentials=True)
+def checkAnswer():
+    data=request.get_json()
+    print(data)
+    userAnswer=data['userAnswer']
+    correctAnswer=data['correctAnswer']
+    response=genQA.checkAnswer(userAnswer, correctAnswer)
+    return jsonify({'data': response})
  
 @app.route('/getImage/<filename>', methods=['GET'])
 @cross_origin(supports_credentials=True)
