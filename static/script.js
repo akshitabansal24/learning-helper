@@ -3,6 +3,8 @@ var recognition = new webkitSpeechRecognition();
 recognition.continuous = true;
 var userAnswer="";
 var correctAnswer="";
+var pdfResponse = "";
+var cleanedImageUrl = "";
 
 recognition.onend = function() {
     recognizing = false;
@@ -44,6 +46,7 @@ function uploadImage() {
     const qaBox = document.getElementById('qaBox');
     const uploadBtn = document.getElementById('uploadBtn');
     const loadingSpinner = document.getElementById('loadingSpinner');
+    const responseScreen = document.getElementById('responseScreen');
 
     if (!fileInput.files.length) {
         alert("Please select an image first.");
@@ -63,12 +66,14 @@ function uploadImage() {
     .then(response => response.json())
     .then(result => {
         if (result.cleaned_image_url) {
+            cleanedImageUrl = result.cleaned_image_url;
             cleanedImageBox.innerHTML = `<img src="${result.cleaned_image_url}" class="img-fluid rounded shadow" alt="Cleaned Image">`;
         } else {
             cleanedImageBox.innerHTML = `<p>No cleaned image received.</p>`;
         }
 
         if (result.qa_response && result.qa_response.QA && Array.isArray(result.qa_response.QA)) {
+            pdfResponse = result.qa_response.QA;
             qaBox.innerHTML = result.qa_response.QA.map((qa, index) => `
                 <div class="alert alert-light border qa-card">
                     <strong>Q:</strong> ${qa.Ques}<br>
@@ -94,6 +99,8 @@ function uploadImage() {
     .finally(() => {
         uploadBtn.disabled = false;
         loadingSpinner.classList.add("d-none");
+        responseScreen.classList.remove("d-none");
+        responseScreen.classList.add("d-flex");
     });
 }
 
@@ -106,8 +113,6 @@ function speakQues(questionText) {
 }
 
 function checkAnswer(userAnswer, correctAnswer) {
-    // const similarity = compareText(userAnswer.toLowerCase(), correctAnswer.toLowerCase());
-    // console.log('Your answer similarity: ', similarity);
     var answers = JSON.stringify({'userAnswer': userAnswer,'correctAnswer': correctAnswer});
 
     fetch('https://learning-helper-2025-451212.uc.r.appspot.com/checkAnswer', {
@@ -132,4 +137,45 @@ function compareText(str1, str2) {
     });
 
     return ((matches / Math.max(words1.length, words2.length)) * 100).toFixed(2);
+}
+
+function downloadPdf() {
+    pdfText = pdfResponse.map((obj, index) => 'Ques'+ (index + 1) + ': ' + obj.Ques + '\nAns: ' + obj.Ans).join("\n\n");
+    var doc = new jsPDF({
+        orientation: 'p',
+        unit: 'mm',
+        format: 'a4',
+        putOnlyUsedFonts:true
+       });
+    const marginLeft = 10;
+    const marginTop = 20;
+    const pageWidth = 190;
+    const lines = doc.splitTextToSize(pdfText, pageWidth);
+    let y = marginTop;
+    lines.forEach((line, index) => {
+        if (y > 280) {
+            doc.addPage();
+            y = marginTop;
+        }
+        doc.text(line, marginLeft, y);
+        y += 10;
+    });
+    doc.save("Generated QA.pdf");
+}
+
+function downloadCleanImage() {
+    fetch(cleanedImageUrl, {
+        mode : 'no-cors'
+    })
+        .then(response => response.blob())
+        .then(blob => {
+            const link = document.createElement("a");
+            link.target="_blank";
+            link.href = cleanedImageUrl;
+            link.download = "cleaned_image.png"; // Make sure to set the filename
+            document.body.appendChild(link);
+            link.click();
+            link.remove();
+        })
+        .catch(error => console.error("Download error:", error));
 }

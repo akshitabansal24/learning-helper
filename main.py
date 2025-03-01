@@ -3,7 +3,6 @@ from flask_cors import CORS, cross_origin
 from werkzeug.utils import secure_filename
 import os
 import cleanImage
-import handwritingToText
 import imageToText
 import genQA
 import bucket
@@ -40,7 +39,8 @@ def genAI():
 @cross_origin(supports_credentials=True)
 def processImage(): 
     file=request.files.get('img')
-    tmp_file = f'/tmp/{file.filename}'
+    sanitized_filename = file.filename.replace(" ", "_")
+    tmp_file = f'/tmp/{sanitized_filename}'
     file.save(tmp_file)
     bucket.gcs_upload_image(tmp_file)
 
@@ -51,7 +51,6 @@ def processImage():
     
     text=imageToText.detect_text(tmp_file)
     response=genQA.genQA(text)
-    # return jsonify({'data': response})
 
     return jsonify({
         "cleaned_image_url": cleaned_image_url,
