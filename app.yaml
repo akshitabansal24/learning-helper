@@ -14,3 +14,8 @@
 
 runtime: python312
 entrypoint: gunicorn -b :$PORT main:app
+app_engine_apis: true
+
+inbound_services:
+- mail
+- mail_bounce

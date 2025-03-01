@@ -1,8 +1,9 @@
 import vertexai
 from vertexai.generative_models import GenerativeModel
 import json
+import os
 
-PROJECT_ID = "learning-helper-2025-451212"
+PROJECT_ID = os.environ.get("GOOGLE_CLOUD_PROJECT")
 vertexai.init(project=PROJECT_ID, location="us-central1")
 
 model = GenerativeModel("gemini-1.5-flash-002")

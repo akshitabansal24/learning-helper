@@ -8,3 +8,5 @@ werkzeug
 google-cloud-vision
 google-cloud-aiplatform
 gunicorn
+google-cloud-datastore
+appengine-python-standard

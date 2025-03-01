@@ -2,10 +2,14 @@
 from google.cloud import storage
 from io import BytesIO
 from flask import send_file
+import os
+
+project_id = os.environ.get("GOOGLE_CLOUD_PROJECT")
+bucket_name = f"{project_id}.appspot.com"
 
 def gcs_upload_image(filename):
     storage_client = storage.Client()
-    bucket_name = "learning-helper-2025-451212.appspot.com"
+    # bucket_name = "learning-helper-2025-451212.appspot.com"
     bucket = storage_client.bucket(bucket_name)
     blob = bucket.blob(filename)
     blob.upload_from_filename(filename)
@@ -15,7 +19,7 @@ def gcs_upload_image(filename):
 
 def download_from_gcs(filename):
     storage_client = storage.Client()
-    bucket_name = "learning-helper-2025-451212.appspot.com"
+    # bucket_name = "learning-helper-2025-451212.appspot.com"
     # file_path = f"/tmp/{filename}" 
     bucket = storage_client.bucket(bucket_name)
     blob = bucket.blob(filename)
@@ -26,5 +30,5 @@ def download_from_gcs(filename):
 
 def get_gcs_url(filename):
     """Generate a public URL for an image stored in GCS."""
-    bucket_name = "learning-helper-2025-451212.appspot.com"
+    # bucket_name = "learning-helper-2025-451212.appspot.com"
     return f"https://storage.googleapis.com/{bucket_name}/{filename}"
