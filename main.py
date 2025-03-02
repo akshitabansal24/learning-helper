@@ -64,7 +64,8 @@ def checkAnswer():
     print(data)
     userAnswer=data['userAnswer']
     correctAnswer=data['correctAnswer']
-    response=genQA.checkAnswer(userAnswer, correctAnswer)
+    question=data['question']
+    response=genQA.checkAnswer(userAnswer, correctAnswer, question)
     return jsonify({'data': response})
  
 @app.route('/getImage/<filename>', methods=['GET'])

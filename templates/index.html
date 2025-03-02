@@ -19,12 +19,18 @@
         </div>
     </nav>
     
-    <div class="container mt-5 p-4 bg-white rounded shadow-lg">
-        <h2 class="text-center">Upload an Image</h2>
+    <div class="container mt-3 p-4 bg-white rounded shadow-lg">
         <div class="mb-3">
             <input class="form-control border-dark" type="file" id="fileInput" accept="image/*">
         </div>
-        <button class="btn btn-outline-dark w-100" id="uploadBtn" onclick="uploadImage()">Submit</button>
+        <div class="row">
+            <div class="col-md-6">
+                <button class="btn btn-outline-dark w-100" id="uploadBtn_study" onclick="uploadImage(false)">Study</button>
+            </div>
+            <div class="col-md-6">
+                <button class="btn btn-outline-dark w-100" id="uploadBtn_quiz" onclick="uploadImage(true)">Quiz</button>
+            </div>
+        </div>
         
         <div id="loadingSpinner" class="text-center mt-3 d-none">
             <div class="spinner-border text-dark" role="status"></div>
@@ -32,8 +38,8 @@
         </div>
     </div>
     
-    <div class="row mt-4 container mx-auto" style="display:none;" id="responseScreen">
-        <div class="col-md-6">
+    <div class="row mt-3 container mx-auto" style="display:none;" id="responseScreen">
+        <div class="col-md-6" id="cleanedImageDiv">
             <div class="card shadow">
                 <div class="card-header bg-dark text-white text-center">
                     <h5>Cleaned Image&nbsp;&nbsp;
@@ -42,12 +48,12 @@
                         </button>
                     </h5>
                 </div>
-                <div class="card-body text-center" id="cleanedImageBox">
+                <div class="card-body text-center" style="overflow-y: auto; height: 47vh;" id="cleanedImageBox">
                     <p>No image uploaded.</p>
                 </div>
             </div>
         </div>
-        <div class="col-md-6">
+        <div class="col-md-6" id="QADiv">
             <div class="card shadow">
                 <div class="card-header bg-dark text-white text-center">
                     <h5>Generated Q&A&nbsp;&nbsp;
@@ -57,7 +63,7 @@
                     </h5>
                     
                 </div>
-                <div class="card-body" id="qaBox">
+                <div class="card-body" style="overflow-y: auto; height: 47vh;" id="qaBox">
                     <p>Upload an image to see the results.</p>
                 </div>
             </div>
@@ -65,7 +71,7 @@
     </div>
  
     
-    <footer class="bg-dark text-white text-center p-3 mt-5 shadow">
+    <footer class="bg-dark text-white text-center p-3 mt-3 shadow" style="position: fixed;bottom: 0;left: 0;width: 100%;">
         &copy; 2025 IntelliTutor. All Rights Reserved.
     </footer>
     
