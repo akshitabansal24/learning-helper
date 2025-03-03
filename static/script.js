@@ -49,6 +49,14 @@ function uploadImage(quizMode) {
     document.getElementById('cleanedImageDiv').classList.remove("d-none");
     document.getElementById('QADiv').classList.remove('col-md-12');
     document.getElementById('QADiv').classList.add('col-md-6');
+    document.getElementById('uploadFeedback_btn').classList.remove("d-none");
+    questions=[];
+    userAnswer=[];
+    correctAnswer=[];
+    feedback=[];
+    pdfResponse = "";
+    cleanedImageUrl = "";
+    speakIndex = "";
 
     if (!fileInput.files.length) {
         alert("Please select an image first.");
@@ -81,9 +89,7 @@ function uploadImage(quizMode) {
                 questions.push(element.Ques);
                 correctAnswer.push(element.Ans);
                 userAnswer.push("");
-                feedback.push({data: {
-                    Overall_Score: ''
-                }});
+                feedback.push({});
             });
             qaBox.innerHTML = result.qa_response.QA.map((qa, index) => `
                 <div class="alert alert-light border qa-card">
@@ -148,6 +154,7 @@ function uploadImage(quizMode) {
             while(elements.length > 0){
                 elements[0].parentNode.removeChild(elements[0]);
             }
+            document.getElementById('uploadFeedback_btn').classList.add("d-none");
         }
     });
 }
@@ -215,6 +222,21 @@ function downloadPdf() {
     });
     doc.save("Generated QA.pdf");
 }
+
+function uploadFeedback() {
+    fetch('https://learning-helper-2025-451212.uc.r.appspot.com/uploadFeedback', {
+        method: 'POST',
+        headers: {
+            'Accept': 'application/json, text/plain',
+            'Content-Type': 'application/json;charset=UTF-8'
+        },
+        body: JSON.stringify({'user': document.getElementById('userNameInput').value,'feedback': feedback})
+    })
+    .then(response => response.json())  
+    .then(data => {
+        console.log(data);
+    });
+};
 
 function downloadCleanImage() {
     fetch(cleanedImageUrl, {

@@ -60,11 +60,31 @@
                         <button onclick="downloadPdf()" class="btn btn-outline-light">
                             <i class="bi bi-download"></i>
                         </button>
+                        <button class="btn btn-outline-light" data-bs-toggle="modal" data-bs-target="#feedbackModal" id="uploadFeedback_btn">
+                            <i class="bi bi-cloud-upload"></i>
+                        </button>
                     </h5>
                     
                 </div>
                 <div class="card-body" style="overflow-y: auto; height: 47vh;" id="qaBox">
                     <p>Upload an image to see the results.</p>
+                </div>
+            </div>
+        </div>
+        <div class="modal fade" id="feedbackModal" tabindex="-1" aria-labelledby="modalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-lg">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="modalLabel">Upload Feedback</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body" id="modalBody">
+                        <input type="text" class="form-control" placeholder="Username" id="userNameInput">
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-outline-dark" onclick="uploadFeedback()" data-bs-dismiss="modal">Submit</button>
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                    </div>
                 </div>
             </div>
         </div>

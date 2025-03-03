@@ -6,6 +6,8 @@ import cleanImage
 import imageToText
 import genQA
 import bucket
+from google.cloud import datastore
+import datetime
   
 # creating a Flask app 
 app = Flask(__name__)
@@ -67,6 +69,17 @@ def checkAnswer():
     question=data['question']
     response=genQA.checkAnswer(userAnswer, correctAnswer, question)
     return jsonify({'data': response})
+
+@app.route('/uploadFeedback', methods = ['POST']) 
+@cross_origin(supports_credentials=True)
+def uploadFeedback():
+    data=request.get_json()
+    datastore_client = datastore.Client()
+    entity = datastore.Entity(key=datastore_client.key("feedback", data['user']))
+    time = datetime.datetime.now()
+    entity[+"{:%B %d, %Y}".format(time)] = data["feedback"]
+    datastore_client.put(entity)
+    return jsonify(data["feedback"])
  
 @app.route('/getImage/<filename>', methods=['GET'])
 @cross_origin(supports_credentials=True)
@@ -78,4 +91,4 @@ def get_image(filename):
 # driver function 
 if __name__ == '__main__': 
   
-    app.run(debug = True) 
+    app.run(debug = True)

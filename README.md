@@ -4,8 +4,9 @@ pw: same gmail pw
 3. add billing account
 4. git clone https://github.com/akshitabansal24/learning-helper.git
 5. git checkout feature/
-6. change projectId in genAI file
-7. update output.mp3 file path in speechToText.py
-8. enable apis as per code error flow (Cloud Vision API,Vertex AI API,Cloud Text-to-Speech API,Cloud Speech-to-Text API)
-9. import python libraries as per error
-10. run learningHelper.py
+6. enable apis as per code error flow (Cloud Vision API, Vertex AI API, App Engine, datastore)
+7. import python libraries as per error
+8. gcloud app deploy
+9. https://learning-helper-2025-451212.uc.r.appspot.com/
+10. python main.py for debugging
+11. 
