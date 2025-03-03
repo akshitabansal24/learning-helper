@@ -9,4 +9,4 @@ pw: same gmail pw
 8. gcloud app deploy
 9. https://learning-helper-2025-451212.uc.r.appspot.com/
 10. python main.py for debugging
-11. 
+11. gcloud app logs tail -s default
