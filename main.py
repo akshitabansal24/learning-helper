@@ -77,7 +77,7 @@ def uploadFeedback():
     datastore_client = datastore.Client()
     entity = datastore.Entity(key=datastore_client.key("feedback", data['user']))
     time = datetime.datetime.now()
-    entity[+"{:%B %d, %Y}".format(time)] = data["feedback"]
+    entity["{:%B %d, %Y}".format(time)] = data["feedback"]
     datastore_client.put(entity)
     return jsonify(data["feedback"])
  
