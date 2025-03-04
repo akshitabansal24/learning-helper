@@ -8,6 +8,7 @@ var feedback=[];
 var pdfResponse = "";
 var cleanedImageUrl = "";
 var speakIndex = "";
+var projectId = "learning-helper-2025-451212";
 
 recognition.onend = function() {
     recognizing = false;
@@ -70,7 +71,7 @@ function uploadImage(quizMode) {
     const formData = new FormData();
     formData.append('img', fileInput.files[0]);
 
-    fetch('https://learning-helper-2025-451212.uc.r.appspot.com/processImage', {
+    fetch('https://'+projectId+'.uc.r.appspot.com/processImage', {
         method: 'POST',
         body: formData
     })
@@ -181,7 +182,7 @@ function checkAnswer(userAnswer, correctAnswer, question) {
     else {
         modalBody.innerHTML = "<div class='spinner-border text-dark text-center' role='status'></div><p>Processing...</p>";
         var answers = JSON.stringify({'userAnswer': userAnswer,'correctAnswer': correctAnswer, 'question': question});
-        fetch('https://learning-helper-2025-451212.uc.r.appspot.com/checkAnswer', {
+        fetch('https://'+projectId+'.uc.r.appspot.com/checkAnswer', {
             method: 'POST',
             headers: {
                 'Accept': 'application/json, text/plain',
@@ -224,7 +225,7 @@ function downloadPdf() {
 }
 
 function uploadFeedback() {
-    fetch('https://learning-helper-2025-451212.uc.r.appspot.com/uploadFeedback', {
+    fetch('https://'+projectId+'.uc.r.appspot.com/uploadFeedback', {
         method: 'POST',
         headers: {
             'Accept': 'application/json, text/plain',
