@@ -6,7 +6,7 @@
 6. enable apis as per code error flow (Cloud Vision API, Vertex AI API, App Engine, datastore)
 7. (maybe) import python libraries as per error
 8. make bucket public bucket->permissions->new principals = allUsers -> role = cloud storage = storage object viewer -> save
-9. change fetch apis in script.js
+9. change projectId in script.js
 10. To make database; go to -> firestore in gcp -> create database -> native mode -> databaseId = (default) -> test rules -> create -> collectionName = feedback -> save
 11. go to firebase and check the db created there as well under same project
 12. gcloud app deploy 
