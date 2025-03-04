@@ -1,0 +1,11 @@
+flask
+flask_cors
+flask-restful
+gunicorn
+werkzeug
+opencv-python
+imutils
+scikit-image
+google-cloud-vision
+google-cloud-aiplatform
+google-cloud-datastore
