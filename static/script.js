@@ -8,7 +8,7 @@ var feedback=[];
 var pdfResponse = "";
 var cleanedImageUrl = "";
 var speakIndex = "";
-var projectId = "learning-helper-2025-451212";
+var projectId = "intellitutor-2025";
 
 recognition.onend = function() {
     recognizing = false;
@@ -83,16 +83,16 @@ function uploadImage(quizMode) {
         } else {
             cleanedImageBox.innerHTML = `<p>No cleaned image received.</p>`;
         }
-
-        if (result.qa_response && result.qa_response.QA && Array.isArray(result.qa_response.QA)) {
-            pdfResponse = result.qa_response.QA;
-            result.qa_response.QA.forEach(element => {
+        console.log(result);
+        if (result.qa_response && Array.isArray(result.qa_response)) {
+            pdfResponse = result.qa_response;
+            result.qa_response.forEach(element => {
                 questions.push(element.Ques);
                 correctAnswer.push(element.Ans);
                 userAnswer.push("");
                 feedback.push({});
             });
-            qaBox.innerHTML = result.qa_response.QA.map((qa, index) => `
+            qaBox.innerHTML = result.qa_response.map((qa, index) => `
                 <div class="alert alert-light border qa-card">
                     <strong>Q:</strong> ${qa.Ques}<br>
                     <div class="correctAns"> <strong>A:</strong> ${qa.Ans} </div>
